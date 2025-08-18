@@ -13,4 +13,4 @@ COPY backend/requirements.txt ./
 RUN pip install -r requirements.txt
 COPY backend/ .
 COPY --from=frontend-build /app/dist ./static 
-CMD ["python", "app.py"]  # or your backend start command
+CMD ["python", "run.py"]  # or your backend start command
