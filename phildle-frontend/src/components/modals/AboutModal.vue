@@ -34,7 +34,7 @@
       <p class="mb-4">
         Missed a daily? No worries! You can play any past Phildle from the Archive.
         You may even replay Phildles that you've failed, or liked so much that you want to check out again,
-        <b>but note that these will only contribute to your Played stat</b>.
+        <b>but note that these will contribute only to your Played stat</b>.
       </p>
 
       <button class="close-btn" @click="onClose">Got it!</button>
