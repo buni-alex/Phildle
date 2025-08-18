@@ -3,9 +3,9 @@
     <blockquote>
       "{{ props.quote }}"
     </blockquote>
-    <footer>
-      — {{ props.philosopher }}
-    </footer>
+   {{/* <footer> */ }}
+   {{/*   — {{ props.philosopher }} */}}
+   {{/* //</footer> */}}
   </div>
 </template>
 
