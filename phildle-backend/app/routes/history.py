@@ -80,11 +80,13 @@ def record_play():
     # Upsert logic stays
     play = UserPhildleHistory.query.filter_by(user_id=user.id, phildle_id=phildle_id).first()
     if not play:
+        now = datetime.now(timezone.utc)
         play = UserPhildleHistory(
             user_id=user.id,
             phildle_id=phildle_id,
             attempts=attempts,
-            success=success
+            success=success,
+            played_on=now
         )
         db.session.add(play)
     else:
