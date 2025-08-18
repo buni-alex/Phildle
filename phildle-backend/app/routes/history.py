@@ -38,7 +38,6 @@ def get_user_from_jwt():
 @bp.route("/init_user", methods=["GET"])
 def init_user():
     user = get_user_from_jwt()
-    now = datetime.now(timezone.utc)
 
     if not user:
         # new user
@@ -46,24 +45,20 @@ def init_user():
         db.session.add(user)
         db.session.commit()
         token = generate_jwt(user.id)
-        resp = make_response(jsonify({"user_uuid": str(user.id), "new_user": True}))
-        # set initial year
-        max_age = 365 * 24 * 3600
-        resp.set_cookie("phildle_jwt", token, httponly=True, samesite='Lax', max_age=max_age)
+        resp = make_response(jsonify({
+            "user_uuid": str(user.id),
+            "new_user": True,
+            "created_at": user.created_at.isoformat()  # full datetime
+        }))
+        resp.set_cookie("phildle_jwt", token, httponly=True, samesite='Lax', max_age=365*24*3600)
         return resp
 
-    # existing user: check if more than 6 months have passed since creation
-    age_days = (now - user.created_at).days
-    if age_days > 180:  # 6 months ≈ 180 days
-        # extend cookie by another 6 months from now
-        max_age = 6 * 30 * 24 * 3600
-        token = generate_jwt(user.id)  # optionally refresh JWT
-        resp = make_response(jsonify({"user_uuid": str(user.id), "new_user": False}))
-        resp.set_cookie("phildle_jwt", token, httponly=True, samesite='Lax', max_age=max_age)
-        return resp
-
-    # normal response, no cookie update needed
-    return jsonify({"user_uuid": str(user.id), "new_user": False})
+    # existing user
+    return jsonify({
+        "user_uuid": str(user.id),
+        "new_user": False,
+        "created_at": user.created_at.isoformat()  # full datetime
+    })
 
 @bp.route("/record_play", methods=["POST"])
 def record_play():
