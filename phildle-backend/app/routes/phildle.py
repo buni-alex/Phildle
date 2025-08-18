@@ -4,9 +4,10 @@ from app.models.user import User
 from app.models.user_phildle_history import UserPhildleHistory
 import jwt
 from app.models.daily_phildle import DailyPhildle
+import os
 
-JWT_SECRET = "supersecretkey"
-JWT_ALGORITHM = "HS256"
+JWT_SECRET = os.getenv('JWT_SECRET')
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
 
 def get_user_from_jwt():
     from flask import request

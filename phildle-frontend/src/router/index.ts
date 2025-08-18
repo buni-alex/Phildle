@@ -6,10 +6,10 @@ import StatsPage from '../pages/StatsPage.vue'
 const routes = [
   {
     path: '/',
-    redirect: '/phildle'  // default to today's phildle
+    redirect: '/today'  // default to today's phildle
   },
   {
-    path: '/phildle',
+    path: '/today',
     component: PhildlePage,
     name: 'DailyPhildle'
   },
