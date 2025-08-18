@@ -9,7 +9,7 @@ RUN npm run build
 # Stage 2: backend
 FROM python:3.12-alpine AS backend
 WORKDIR /app
-COPY phidle-backend/requirements.txt ./
+COPY phildle-backend/requirements.txt ./
 RUN pip install -r requirements.txt
 COPY phildle-backend/ .
 COPY --from=frontend-build /app/dist ./static 
