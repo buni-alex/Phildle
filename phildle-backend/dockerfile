@@ -1,0 +1,24 @@
+# Dockerfile (backend)
+FROM python:3.10-slim
+
+# Set work directory
+WORKDIR /app
+
+# Copy requirements first to leverage caching
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the app
+COPY . .
+
+# Expose port (Flask default)
+EXPOSE 5000
+
+# Set environment variables (optional defaults)
+ENV FLASK_APP=run.py
+ENV FLASK_ENV=production
+
+# Run the app
+CMD ["python", "run.py"]
