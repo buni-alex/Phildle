@@ -7,6 +7,8 @@ from app.models.phildle_schedule import PhildleSchedule
 from app.models.daily_phildle import DailyPhildle
 from app.db import db
 import os
+from sqlalchemy.exc import OperationalError
+import time
 
 bp = Blueprint('history', __name__, url_prefix='/api/history')
 
@@ -34,6 +36,17 @@ def get_user_from_jwt():
     except jwt.InvalidTokenError as e:
         print("JWT decode error:", e)
         return None
+    
+def safe_commit(session, retries=3, delay=1):
+    for i in range(retries):
+        try:
+            session.commit()
+            return
+        except OperationalError:
+            session.rollback()
+            if i == retries - 1:
+                raise
+            time.sleep(delay)
 
 @bp.route("/init_user", methods=["GET"])
 def init_user():
@@ -43,7 +56,7 @@ def init_user():
         # new user
         user = User()
         db.session.add(user)
-        db.session.commit()
+        safe_commit(db.session)
         token = generate_jwt(user.id)
         resp = make_response(jsonify({
             "user_uuid": str(user.id),
@@ -122,7 +135,7 @@ def record_play():
         user.last_played = today
 
     # Commit after all changes
-    db.session.commit()
+    safe_commit(db.session)   # retry-friendly commit
     return jsonify({
         "status": "ok",
         "current_streak": user.current_streak,
