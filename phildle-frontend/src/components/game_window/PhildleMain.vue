@@ -81,10 +81,8 @@ const maxLives = 5
 
 // Determine if the current Phildle is today's daily
 const isDailyPhildle = computed(() => {
-  console.log(props.dailyPhildle.date)
   const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
   const phildleDate = new Date(props.dailyPhildle.date).toISOString().slice(0, 10);
-  console.log(today, phildleDate)
   return today === phildleDate;
 });
 
@@ -102,7 +100,6 @@ if (props.dailyPhildle.daily_replay) {
   }
   else
     gameLogic.gameOver.value = true
-  // if you want modal instantly:
   showModal.value = true
 }
 
@@ -120,7 +117,7 @@ watch(
     if (gameEnded) {
       setTimeout(() => {
         showModal.value = true;
-      }, 2100); // 2s animation + 1s wait
+      }, 2100); // 2s animation of hints + 1s wait
     }
   }
 );
@@ -167,25 +164,25 @@ function closeModal() {
   position: sticky;
   top: 3rem;
   z-index: 1000;
-  text-align: center; /* center inner inline-flex */
+  text-align: center;
 }
 
 .suggestion-row {
-  display: inline-flex;      /* shrink-wrap width */
+  display: inline-flex;
   justify-content: center;
   align-items: flex-start;
-  min-width: 500px; /* or whatever size fits nicely */
-  gap: 1.8rem;              /* spacing between children */
+  min-width: 500px;
+  gap: 1.8rem;
   position: sticky;
   top: 3rem;
   background-color: #242424;
   border-radius: 0px 0px 10px 10px;
-  padding: 0.5rem 0.1rem;     /* optional for some internal spacing */
+  padding: 0.5rem 0.1rem;
 }
 
 .lives {
   display: flex;
-  align-items: center; /* vertical centering */
+  align-items: center;
   gap: 6px;
 }
 
@@ -204,8 +201,8 @@ function closeModal() {
 }
 
 .life-circle.lost {
-  opacity: 0;       /* faded out */
-  transform: scale(0.7); /* optional shrink effect */
+  opacity: 0; 
+  transform: scale(0.7); /* shrink effect */
 }
 
 .give-up-btn {
