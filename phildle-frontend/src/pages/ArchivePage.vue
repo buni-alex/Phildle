@@ -7,6 +7,8 @@
       :selected-id="selectedId"
       @select="selectPhildle"
     />
+
+    <AboutModal :show="showAboutModal" @close="showAboutModal = false" />
   </div>
 </template>
 
@@ -16,6 +18,9 @@ import { useRouter } from 'vue-router'
 import { fetchHistory } from '../services/history_service'
 import ArchiveList from '../components/archive/ArchiveList.vue'
 import ToolBar from '../components/toolbar/ToolBar.vue'
+import AboutModal from '../components/modals/AboutModal.vue'
+
+import { getUser } from '../caches/user_cache'
 
 const router = useRouter()
 
@@ -28,6 +33,7 @@ interface HistoryItem {
 
 const history = ref<HistoryItem[]>([])
 const selectedId = ref<number | null>(null)
+const showAboutModal = ref(false)
 
 function selectPhildle(id: number, index: number) {
   selectedId.value = id
@@ -48,7 +54,16 @@ async function getHistory() {
   }
 }
 
-onMounted(getHistory)
+onMounted(async () => {
+  try {
+    const user = await getUser()
+    if (user.new_user) showAboutModal.value = true
+
+    await getHistory()
+  } catch (error) {
+    console.error("Failed to load archive:", error);
+  }
+})
 </script>
 
 <style scoped>

@@ -115,5 +115,9 @@ export const COUNTRY_EQUIVALENCE: Record<string, Set<string>> = {
 
   Zambia: new Set([
     "Northern Rhodesia"
+  ]),
+
+  Vietnam: new Set([
+    "French Indochina"
   ])
 };

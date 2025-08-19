@@ -16,7 +16,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { fetchDailyPhildle, fetchPhildleById } from '../services/data_service'
-import { initUser } from '../services/history_service'
+import { getUser } from '../caches/user_cache'
 import { getPhilosophers } from '../caches/philosophers_names_cache'
 import type { DailyPhildle } from '../types/daily_phildle'
 import ToolBar from '../components/toolbar/ToolBar.vue'
@@ -34,7 +34,7 @@ async function loadPhildle() {
   try {
     loading.value = true
     error.value = null
-    const userInit = await initUser()
+    const userInit = await getUser()
     if (userInit.new_user) {
       showAboutModal.value = true 
     }
@@ -54,7 +54,7 @@ async function loadPhildle() {
 }
 
 onMounted(loadPhildle)
-watch(() => route.fullPath, loadPhildle) // 👈 react when route changes
+watch(() => route.fullPath, loadPhildle) // 👈 react when route changes, othewise vue caches
 </script>
 
 <style scoped>

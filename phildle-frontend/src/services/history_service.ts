@@ -1,6 +1,7 @@
 import type { UserStats } from '../types/user';
 const API_BASE = "/api/history";
 
+
 export async function initUser(): Promise<{ user_uuid: string; new_user: boolean }> {
   const resp = await fetch(`${API_BASE}/init_user`, { credentials: "include" })
   if (!resp.ok) throw new Error(`Failed to init user: ${resp.statusText}`)
