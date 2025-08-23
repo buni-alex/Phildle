@@ -52,7 +52,8 @@ export function usePhildleGame(dailyPhildle: DailyPhildle, startingLives = 5) {
 
     if (guessPhilosopher.name === dailyPhildle.philosopher_name) {
       guessedCorrectly.value = true
-      await recordPlay(dailyPhildle.phildle_id, startingLives - lives.value + 1, true)
+      lives.value--
+      await recordPlay(dailyPhildle.phildle_id, startingLives - lives.value, true)
     } 
     else {
       lives.value--

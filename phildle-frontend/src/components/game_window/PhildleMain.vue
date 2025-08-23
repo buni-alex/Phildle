@@ -90,6 +90,7 @@ const isDailyPhildle = computed(() => {
   return today === phildleDate;
 });
 
+
 function handleAbruptEndGame(success: boolean, attempts?: number) {
   if (success) {
     gameLogic.lives.value = maxLives - (attempts ?? 0)
@@ -125,15 +126,19 @@ function handleAbruptEndGame(success: boolean, attempts?: number) {
 // the dailyReplay thing won't actually be rechecked
 watch(
   () => props.dailyPhildle,
-  (newVal) => {
-    if (!newVal || !newVal.daily_replay) return
+   (newVal) => {
+    // clear state immediately on phildle switch
+    guessHistory.value = []
     inputDisabled.value = false
     showModal.value = false
-    guessHistory.value = []
+
+    if (!newVal || !newVal.daily_replay) return
+
     gameLogic.reset(newVal)
 
     if (newVal.daily_replay.daily_success) {
       handleAbruptEndGame(true, newVal.daily_replay.attempts)
+      showModal.value = true
     } else {
       handleAbruptEndGame(false)
       showModal.value = true
