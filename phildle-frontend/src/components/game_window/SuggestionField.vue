@@ -1,6 +1,7 @@
 <template>
   <div class="suggestion-field">
     <input
+      class="input-field"
       type="text"
       v-model="inputValue"
       @input="onInput"
@@ -106,6 +107,20 @@ watch(highlightedIndex, (newIndex) => {
     el.scrollIntoView({ block: 'nearest' })
   }
 })
+
+function clear() {
+  inputValue.value = ''
+  filtered.value = []
+  highlightedIndex.value = -1
+}
+
+watch(
+  () => props.disabled,
+  (newVal) => {
+    if (newVal) clear()
+  }
+)
+
 </script>
 
 <style scoped>
@@ -156,5 +171,14 @@ input:disabled {
   background-color: #121212;
   color: #666;
   cursor: not-allowed;
+}
+
+@media (max-width: 480px){
+  .suggestion-field{
+    font-size:23px;
+  }
+  .input-field{
+    font-size:20px;
+  }
 }
 </style>

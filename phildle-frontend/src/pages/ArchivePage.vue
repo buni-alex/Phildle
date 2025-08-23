@@ -38,7 +38,12 @@ const showAboutModal = ref(false)
 function selectPhildle(id: number, index: number) {
   selectedId.value = id
   if (index === 0) {
-    router.push({ name: 'DailyPhildle' })
+    router.push({ name: 'DailyPhildle' }) // we differentiate for today's phildle
+                                          // because it has the special limitation
+                                          // of not being replayable in the same day.
+
+                                          // it has a different backend endpoint for the 
+                                          // same reason, and it is also cached in the backend.
   } else {
     router.push({ name: 'PastPhildle', params: { id } })
   }
@@ -57,6 +62,8 @@ async function getHistory() {
 onMounted(async () => {
   try {
     const user = await getUser()
+    // a new user may somehow access this as the first Phildle page,
+    // so we might as well check and show the modal if necessary
     if (user.new_user) showAboutModal.value = true
 
     await getHistory()

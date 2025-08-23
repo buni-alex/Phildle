@@ -81,7 +81,7 @@ async function loadPhildle() {
 
 
 onMounted(loadPhildle)
-watch(() => route.fullPath, loadPhildle) // 👈 react when route changes, othewise vue caches
+watch(() => route.fullPath, loadPhildle) // react when route changes, othewise vue caches
 </script>
 
 <style scoped>

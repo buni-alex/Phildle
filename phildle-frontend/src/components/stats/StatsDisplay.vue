@@ -29,7 +29,7 @@
           <span>Philosofails:</span>
           <strong>
             {{ props.stats.daily_losses }}
-            <span> {{getFailsEmoji(props.stats.max_streak)}} </span>
+            <span> {{getFailsEmoji(props.stats.daily_losses)}} </span>
           </strong>
         </div>
       </div>

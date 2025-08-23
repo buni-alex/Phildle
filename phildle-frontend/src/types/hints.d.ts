@@ -1,12 +1,13 @@
 export type Hints = {
+  nameHint: boolean;
   countryHint: {
     canonicalCorrect: boolean,
     fullyCorrect: boolean
-  };
+  } | null;
   schoolHint: {
     matches: string[],
     allCorrectMatched: boolean
-  };
-  birthDateHint: string;
-  deathDateHint: string;
+  } | null;
+  birthDateHint: string | null;
+  deathDateHint: string | null;
 }

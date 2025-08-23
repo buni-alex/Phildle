@@ -5,90 +5,89 @@
       <div class="flip-inner">
         <div class="flip-front"></div>
         <div class="flip-back"
-             :class="{ correct: guessedPhilosopher.name === props.correctName }">
+             :class="{ correct: hints.nameHint }">
           {{ guessedPhilosopher.name }}
         </div>
       </div>
     </div>
 
-  <!-- 2. School(s) -->
-  <div
-    class="hint-square school">
-    <div class="flip-inner">
-      <div class="flip-front"></div>
-      <div class="flip-back"
-            :class="{ correct: hints.schoolHint.allCorrectMatched,
-                      partial: !hints.schoolHint.allCorrectMatched && hints.schoolHint.matches.some(m => m === 'true' || m === 'maybe')
-    }">
-        <span
-          v-for="(school, i) in schoolArray"
-          :key="i"
-          style="display: block; white-space: normal; margin-bottom: 2px;"
-        >
-          <span style="white-space: normal;">
-            {{ school }}
+    <!-- 2. School(s) -->
+    <div class="hint-square school">
+      <div class="flip-inner">
+        <div class="flip-front"></div>
+        <div class="flip-back"
+             :class="{
+               correct: hints.schoolHint?.allCorrectMatched,
+               partial: !hints.schoolHint?.allCorrectMatched && hints.schoolHint?.matches?.some(m => m === 'true' || m === 'maybe')
+             }">
+          <span
+            v-for="(school, i) in schoolArray"
+            :key="i"
+            style="display: block; white-space: normal; margin-bottom: 2px;"
+          >
+            <span style="white-space: normal;">{{ school }}</span>
+            <span style="white-space: nowrap;" v-if="hints.schoolHint">
+              {{
+                hints.schoolHint.matches[i] === 'true' ? ' ✅' :
+                hints.schoolHint.matches[i] === 'maybe' ? ' 🤔💭' :
+                ' ❌'
+              }}
+              <span v-if="i !== schoolArray.length - 1">,</span>
+            </span>
           </span>
-          <span style="white-space: nowrap;">
-            {{
-              hints.schoolHint.matches[i] === 'true' ? ' ✅' :
-              hints.schoolHint.matches[i] === 'maybe' ? ' 🤔💭' :
-              ' ❌'
-            }}
-            <span v-if="i !== schoolArray.length - 1">,</span>
-          </span>
-        </span>
-      </div>
-    </div>
-  </div>
-
-  <!-- 3. Country -->
-  <div class="hint-square country">
-    <div class="flip-inner">
-      <div class="flip-front"></div>
-      <div class="flip-back"
-                 :class="{ correct: hints.countryHint.fullyCorrect, 
-                 partial: !hints.countryHint.fullyCorrect && hints.countryHint.canonicalCorrect
-       }">
-        {{ extractedCountry }}
-        <span class="country-hint">
-          {{ hints.countryHint.fullyCorrect ? '✅' :
-             hints.countryHint.canonicalCorrect && !hints.countryHint.fullyCorrect ? '🤔💭' :
-             '❌' }}
-        </span>
-        <div v-if="hints.countryHint.canonicalCorrect && !hints.countryHint.fullyCorrect" class="country-note">
-          It may have been called differently at the time.
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- 4. Birth Date -->
-  <div class="hint-square birth-date">
-    <div class="flip-inner">
-      <div class="flip-front"></div>
-      <div class="flip-back"
-           :class="{ correct: hints.birthDateHint === 'same',
-                     partial: hints.birthDateHint === 'maybe'}">
-        {{ formatDate(guessedPhilosopher.birth_date) }}
-        <span class="date-hint">
-          {{ dateHintEmoji(hints.birthDateHint) }}
-        </span>
-        <div v-if="hints.birthDateHint === 'maybe'" class="date-note">
-          Or at least around that time.
+    <!-- 3. Country -->
+    <div class="hint-square country">
+      <div class="flip-inner">
+        <div class="flip-front"></div>
+        <div class="flip-back"
+             :class="{ 
+               correct: hints.countryHint?.fullyCorrect, 
+               partial: !hints.countryHint?.fullyCorrect && hints.countryHint?.canonicalCorrect 
+             }">
+          {{ extractedCountry }}
+          <span class="country-hint" v-if="hints.countryHint">
+            {{ hints.countryHint.fullyCorrect ? '✅' :
+               hints.countryHint.canonicalCorrect && !hints.countryHint.fullyCorrect ? '🤔💭' :
+               '❌' }}
+          </span>
+          <div v-if="hints.countryHint?.canonicalCorrect && !hints.countryHint.fullyCorrect" class="country-note">
+            It may have been called differently at the time.
+          </div>
         </div>
       </div>
     </div>
-  </div> 
 
-  <!-- 5. Death Date -->
-  <div class="hint-square death-date">
+    <!-- 4. Birth Date -->
+    <div class="hint-square birth-date">
+      <div class="flip-inner">
+        <div class="flip-front"></div>
+        <div class="flip-back"
+             :class="{ correct: hints.birthDateHint === 'same',
+                       partial: hints.birthDateHint === 'maybe'}">
+          {{ formatDate(guessedPhilosopher.birth_date) }}
+          <span class="date-hint" v-if="hints.birthDateHint">
+            {{ dateHintEmoji(hints.birthDateHint) }}
+          </span>
+          <div v-if="hints.birthDateHint === 'maybe'" class="date-note">
+            Or at least around that time.
+          </div>
+        </div>
+      </div>
+    </div> 
+
+    <!-- 5. Death Date -->
+    <div class="hint-square death-date">
       <div class="flip-inner">
         <div class="flip-front"></div>
         <div class="flip-back"
              :class="{ correct: hints.deathDateHint === 'same',
                        partial: hints.deathDateHint === 'maybe'}">
           {{ guessedPhilosopher.death_date ? formatDate(guessedPhilosopher.death_date) : 'N/A' }}
-          <span class="date-hint">
+          <span class="date-hint" v-if="hints.deathDateHint">
             {{ dateHintEmoji(hints.deathDateHint) }}
           </span>
           <div v-if="hints.deathDateHint === 'maybe'" class="date-note">
@@ -97,7 +96,7 @@
         </div>
       </div>
     </div>
-</div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -108,7 +107,6 @@ import { extractCountryName } from '../../utils/country_hint'
 import { formatDate } from '../../utils/format_date'
 
 const props = defineProps<{
-  correctName: string,
   guessedPhilosopher: Philosopher,
   hints: Hints
 }>();
@@ -131,7 +129,6 @@ function dateHintEmoji(hint: string): string {
     default: return '⛔';
   }
 }
-
 
 </script>
 
@@ -235,6 +232,12 @@ function dateHintEmoji(hint: string): string {
     position: relative;
     display: flex;
     flex: 1 1 108px;
+  }
+}
+
+@media (max-width: 480px){
+  .hints-display{
+    font-size:larger;
   }
 }
 </style>

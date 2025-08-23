@@ -10,8 +10,9 @@
       <div class="suggestion-row">
         <SuggestionField
           v-if="props.philosophers.length"
+          :key="props.dailyPhildle.date"
           :philosophersList="props.philosophers"
-          :disabled="gameLogic.gameOver.value || gameLogic.guessedCorrectly.value"
+          :disabled="inputDisabled"
           @guessSelected="onGuessSelected"
         />
 
@@ -31,7 +32,7 @@
 
     <div class="hints-container">
       <div v-for="(guess, index) in guessHistory" :key="index" class="hint-row">
-        <HintsDisplay :correctName=dailyPhildle.philosopher_name :guessedPhilosopher="guess.guessedPhilosopher" :hints="guess.hints" />
+        <HintsDisplay :guessedPhilosopher="guess.guessedPhilosopher" :hints="guess.hints" />
       </div>
     </div>
 
@@ -78,17 +79,20 @@ const showModal = ref(false);
 const gameLogic = usePhildleGame(props.dailyPhildle)
 const guessHistory = ref<{ guessedPhilosopher: Philosopher, hints: Hints }[]>([])
 const maxLives = 5
+const inputDisabled = ref(false)
 
-// Determine if the current Phildle is today's daily
+// Determine if the current Phildle is today's daily.
+// This is only needed to pass forward to the EndGameModal,
+// to make the share message more personalized.
 const isDailyPhildle = computed(() => {
   const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
   const phildleDate = new Date(props.dailyPhildle.date).toISOString().slice(0, 10);
   return today === phildleDate;
 });
 
-if (props.dailyPhildle.daily_replay) {
-  if(props.dailyPhildle.daily_replay.daily_success){
-    gameLogic.lives.value = maxLives - props.dailyPhildle.daily_replay.attempts
+function handleAbruptEndGame(success: boolean, attempts?: number) {
+  if (success) {
+    gameLogic.lives.value = maxLives - (attempts ?? 0)
     gameLogic.guessedCorrectly.value = true
 
     const correctHints = gameLogic.getCorrectHints()
@@ -97,11 +101,47 @@ if (props.dailyPhildle.daily_replay) {
       guessedPhilosopher: correctHints.correctPhilosopher,
       hints: correctHints.correctHints
     })
+  } else {
+    gameLogic.lives.value = 0
+    const correctHints = gameLogic.getCorrectHints()
+
+    guessHistory.value.push({
+      guessedPhilosopher: correctHints.correctPhilosopher,
+      hints: {
+        nameHint: false,
+        countryHint: null,
+        schoolHint: null,
+        birthDateHint: null,
+        deathDateHint: null
+      }
+    })
   }
-  else
-    gameLogic.gameOver.value = true
-  showModal.value = true
 }
+
+// we need to watch for the props.dailyPhildle change because otherwise
+// the dailyReplay is only checked when the component is created.
+
+// if for example you go from /phildle/16 → /today
+// the dailyReplay thing won't actually be rechecked
+watch(
+  () => props.dailyPhildle,
+  (newVal) => {
+    if (!newVal || !newVal.daily_replay) return
+    inputDisabled.value = false
+    showModal.value = false
+    guessHistory.value = []
+    gameLogic.reset(newVal)
+
+    if (newVal.daily_replay.daily_success) {
+      handleAbruptEndGame(true, newVal.daily_replay.attempts)
+    } else {
+      handleAbruptEndGame(false)
+      showModal.value = true
+    }
+    inputDisabled.value = true;
+  },
+  { immediate: true } // also run on first mount
+)
 
 async function onGuessSelected(philosopherName: string) {
   try {
@@ -116,6 +156,7 @@ watch(
   (gameEnded) => {
     if (gameEnded) {
       setTimeout(() => {
+        inputDisabled.value = true;
         showModal.value = true;
       }, 2100); // 2s animation of hints + 1s wait
     }
@@ -139,6 +180,16 @@ watch(() => gameLogic.hints.value, async (newHints) => {
 
 function onGiveUp() {
   gameLogic.giveUp()
+  inputDisabled.value = true
+  handleAbruptEndGame(false)
+
+  // a bit unintuitive, but we change this boolean to trigger the
+  // "slow" pop of EndGameModal - the one that waits for the animation
+  // to finish
+
+  // should change this logic in the future.
+  // especially since it forced me to add inputDisabled
+  gameLogic.gameOver.value = true
 }
 
 function closeModal() {
@@ -220,5 +271,15 @@ function closeModal() {
 
 .give-up-btn:hover {
   background-color: #e74c3c;
+}
+
+@media (max-width: 480px){
+  .lives-text{
+    font-size:20px;
+  }
+  .give-up-btn{
+    font-size:21px;
+    border-radius: 12px;
+  }
 }
 </style>

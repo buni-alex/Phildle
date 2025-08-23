@@ -22,6 +22,9 @@ const showAboutModal = ref(false);
 
 onMounted(async () => {
   try {
+    // a new user may somehow access this as the first Phildle page,
+    // so we might as well check and show the modal if necessary
+
     const user = await getUser();
     if (user.new_user) showAboutModal.value = true;
 

@@ -55,4 +55,10 @@ footer {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@media (max-width: 480px){
+  .quote-display{
+    font-size:26px;
+  }
+}
 </style>

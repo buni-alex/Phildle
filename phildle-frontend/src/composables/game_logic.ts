@@ -15,33 +15,21 @@ export function usePhildleGame(dailyPhildle: DailyPhildle, startingLives = 5) {
   const currentGuess = ref<Philosopher | null>(null)
   const hints = ref<Hints | null>(null)
 
-  const correctPhilosopher: Philosopher = {
+  let correctPhilosopher: Philosopher = {
     id: 0,
     name: dailyPhildle.philosopher_name,
-    country: dailyPhildle.country,
-    school: dailyPhildle.school,
-    birth_date: dailyPhildle.birth_date,
-    death_date: dailyPhildle.death_date,
-    info: dailyPhildle.info,
-    wiki_image_url: dailyPhildle.wiki_image_url,
-    wiki_image_meta: dailyPhildle.wiki_image_meta
-  }
-
-  function reset() {
-    lives.value = startingLives
-    guessedCorrectly.value = false
-    gameOver.value = false
-    currentGuess.value = null
-    hints.value = null
+    ...dailyPhildle
   }
 
   function getHints(guessPhilosopher : Philosopher, dailyPhildle : DailyPhildle) : Hints {
+    const nameHint = guessPhilosopher.name === dailyPhildle.philosopher_name
     const countryHint = getCountryHint(guessPhilosopher.country, dailyPhildle.country)
     const schoolHint = getSchoolHint(guessPhilosopher.school, dailyPhildle.school)
     const birthDateHint = getDateHint(guessPhilosopher.birth_date, dailyPhildle.birth_date)
     const deathDateHint = getDateHint(guessPhilosopher.death_date, dailyPhildle.death_date)
 
     return{
+      nameHint,
       countryHint,
       schoolHint,
       birthDateHint,
@@ -64,23 +52,33 @@ export function usePhildleGame(dailyPhildle: DailyPhildle, startingLives = 5) {
 
     if (guessPhilosopher.name === dailyPhildle.philosopher_name) {
       guessedCorrectly.value = true
-      await recordPlay(dailyPhildle.phildle_id, startingLives - lives.value + 1, true) // ✅ record streak update on win
+      await recordPlay(dailyPhildle.phildle_id, startingLives - lives.value + 1, true)
     } 
     else {
       lives.value--
       if (lives.value <= 0) {
         gameOver.value = true
-        await recordPlay(dailyPhildle.phildle_id, null, false) // ❌ reset streak on loss
+        await recordPlay(dailyPhildle.phildle_id, null, false) // we don't care about attempts on loss, so we give null
       }
     }
     hints.value = getHints(guessPhilosopher, dailyPhildle)
   }
 
   async function giveUp(){
-    currentGuess.value = correctPhilosopher
     await recordPlay(dailyPhildle.phildle_id, null, false)
-    hints.value = getHints(correctPhilosopher, dailyPhildle)
-    gameOver.value = true
+  }
+
+  function reset(newDailyPhildle: DailyPhildle) {
+    lives.value = 5
+    guessedCorrectly.value = false
+    gameOver.value = false
+    currentGuess.value = null
+    hints.value = null
+    correctPhilosopher = {
+      id: 0,
+      name: newDailyPhildle.philosopher_name,
+      ...newDailyPhildle
+    }
   }
 
   return {
@@ -90,8 +88,8 @@ export function usePhildleGame(dailyPhildle: DailyPhildle, startingLives = 5) {
     currentGuess,
     hints,
     guess,
-    reset,
     getCorrectHints,
-    giveUp
+    giveUp,
+    reset
   }
 }

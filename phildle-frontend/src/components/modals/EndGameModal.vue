@@ -48,7 +48,7 @@ import { formatImageAttribution } from "../../utils/format_attribution_cite";
 const props = defineProps<{
   win: boolean;
   dailyPhildle: DailyPhildle;
-  attempts: number;
+  attempts: number | null;
   isDaily: boolean;
 }>();
 
@@ -148,6 +148,7 @@ const whatsappLink = computed(() => {
   text-decoration: none;
   border: none;
   border-radius: 6px;
+  cursor: pointer;
 }
 
 .whatsapp-btn {
@@ -169,14 +170,11 @@ const whatsappLink = computed(() => {
   border-radius: 5.4px; 
   border: 1.8px solid #767575; 
   font-weight: bold; 
-  padding: 0.5rem 1rem; 
-  cursor: pointer; 
 }
 
 .close-btn:hover {
   background-color: #323232;
 }
-
 
 @keyframes popIn {
   from { transform: scale(0.8); opacity: 0; }
@@ -192,8 +190,8 @@ const whatsappLink = computed(() => {
 }
 
 .philosopher-info {
-  /* no flex needed */
   overflow: hidden; /* ensures container wraps floated image */
+  margin-top: 1vh;
 }
 
 .philosopher-info img {
@@ -211,6 +209,26 @@ const whatsappLink = computed(() => {
 .philosopher-info p {
   text-align: justify;
   line-height: 1.5rem;
+}
+
+@media (max-width: 480px) {
+  h2 {
+    font-size: 1.9rem;
+  }
+  .philosopher-name {
+    font-size: 2.5rem;
+  }
+  .details p {
+    font-size: 23px;
+  }
+  .close-btn, .whatsapp-btn{
+    font-size: 23px;
+    border-radius: 8px;
+  }
+  .philosopher-info img {
+    max-width: 300px;
+    max-height: 300px;
+  }
 }
 
 </style>
