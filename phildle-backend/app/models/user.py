@@ -21,6 +21,7 @@ class User(db.Model):
     last_daily_success = db.Column(db.Date)
     current_streak = db.Column(db.Integer, default=0)
     max_streak = db.Column(db.Integer, default=0)
+    daily_losses = db.Column(db.Integer, default=0)
 
     # Optional: relationship to user_phildle_history
     #plays = db.relationship("UserPhildleHistory", back_populates="user")

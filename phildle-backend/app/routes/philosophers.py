@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, abort
+from flask import Blueprint, jsonify, abort
 from app.models.philosopher import Philosopher
 
 bp = Blueprint('philosophers', __name__, url_prefix='/api/philosophers')
@@ -20,5 +20,8 @@ def get_philosopher_by_name(name):
         "birth_date": philosopher.birth_date,
         "death_date": philosopher.death_date if philosopher.death_date else None,
         "country": philosopher.country,
-        "school": philosopher.school
+        "school": philosopher.school,
+        "info": philosopher.info,
+        "wiki_image_url": philosopher.wiki_image_url,
+        "wiki_image_meta": philosopher.wiki_image_meta
     })

@@ -1,4 +1,5 @@
 from app.db import db
+from sqlalchemy.dialects.postgresql import JSONB
 
 class DailyPhildle(db.Model):
     __tablename__ = 'daily_phildle'
@@ -12,4 +13,7 @@ class DailyPhildle(db.Model):
     country = db.Column(db.Text)
     birth_date = db.Column(db.Text)
     death_date = db.Column(db.Text)
+    info = db.Column(db.Text)
+    wiki_image_url = db.Column(db.Text)
+    wiki_image_meta = db.Column(JSONB)
 

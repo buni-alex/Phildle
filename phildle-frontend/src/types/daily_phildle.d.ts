@@ -8,4 +8,7 @@ export type DailyPhildle = {
   birth_date: string;
   death_date: string | null;
   daily_replay: { daily_success: boolean, attempts: number } | null;
+  info: string | null;
+  wiki_image_url: string | null;
+  wiki_image_meta: Record<string, any> | null;
 };

@@ -147,7 +147,7 @@ function dateHintEmoji(hint: string): string {
   position: relative;
   display: flex;
   width: 100%;
-  min-width: 0; /* Important: allow shrinking below content width */
+  min-width: 0; /* allow shrinking below content width */
 }
 
 .flip-inner {
@@ -157,7 +157,7 @@ function dateHintEmoji(hint: string): string {
   transform-style: preserve-3d;
   animation: flip-with-recoil 2s cubic-bezier(0.81, 0, 0.2, 1) forwards;
 
-  display: flex; /* add flex here */
+  display: flex;
 }
 
 .flip-front,
@@ -185,7 +185,7 @@ function dateHintEmoji(hint: string): string {
 }
 
 .flip-back.correct {
-  background-color: #399b3c !important; /* nice green */
+  background-color: #399b3c !important; /* green */
   border-color: #388E3C!important; /* darker green border */
   color: white;
   font-weight: bold;

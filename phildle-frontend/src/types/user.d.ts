@@ -9,6 +9,6 @@ export type UserStats = {
   current_streak: number;
   max_streak: number;
   attempt_distribution: Record<number, number>;
-  losses: number;
+  daily_losses: number;
   total_played: number
 }

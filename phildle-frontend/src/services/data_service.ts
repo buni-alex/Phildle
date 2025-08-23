@@ -5,7 +5,6 @@ export async function fetchDailyPhildle(): Promise<DailyPhildle> {
   const response = await fetch('/api/today')
   if (!response.ok) throw new Error('Failed to fetch daily Phildle')
   const data = await response.json()
-  console.log(data)
   return data
 }
 

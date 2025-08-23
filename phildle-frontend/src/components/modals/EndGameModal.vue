@@ -25,6 +25,15 @@
         </a>
 
         <button class="close-btn" @click="onClose">Close</button>
+
+        <div class="philosopher-info">
+          <img v-if="dailyPhildle.wiki_image_url" 
+            :src="dailyPhildle.wiki_image_url" 
+            :alt="dailyPhildle.philosopher_name" 
+            :class="imagePositionClass" />
+          <p v-html="dailyPhildle.info"></p>
+          <div v-html="attribution"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -34,6 +43,7 @@
 import type { DailyPhildle } from '../../types/daily_phildle';
 import { formatDate } from '../../utils/format_date';
 import { ref, computed } from 'vue';
+import { formatImageAttribution } from "../../utils/format_attribution_cite";
 
 const props = defineProps<{
   win: boolean;
@@ -41,6 +51,13 @@ const props = defineProps<{
   attempts: number;
   isDaily: boolean;
 }>();
+
+const imageLeft = Math.random() < 0.5; // 50/50 chance
+const imagePositionClass = imageLeft ? 'image-left' : 'image-right';
+
+const attribution = computed(() =>
+  formatImageAttribution(props.dailyPhildle.wiki_image_meta)
+);
 
 const emit = defineEmits(['close']);
 const closing = ref(false);
@@ -71,22 +88,27 @@ const whatsappLink = computed(() => {
   top: 0; left: 0;
   width: 100%; height: 100%;
   background: rgba(0,0,0,0.8);
-  display: flex; 
-  align-items: center; 
+  display: flex;
+  align-items: flex-start;
   justify-content: center;
+  padding: 5rem 1rem 1rem;
+  overflow-y: auto; 
   z-index: 1000;
+  box-sizing: border-box;
 }
 
 .modal-content {
-  background: rgb(12, 12, 12);
-  color:#eee;
+  background: #121212;
+  color: #eee;
   padding: 2rem;
-  margin-top: 3rem;
   border-radius: 12px;
-  max-width: 500px;
-  width: 90%;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-sizing: border-box;
   animation: popIn 0.3s ease;
-  transform: scale(0.9)
 }
 
 /* small devices (mobile) */
@@ -168,4 +190,27 @@ const whatsappLink = computed(() => {
 .popOut {
   animation: popOut 0.3s ease forwards;
 }
+
+.philosopher-info {
+  /* no flex needed */
+  overflow: hidden; /* ensures container wraps floated image */
+}
+
+.philosopher-info img {
+  float: left; /* or right */
+  margin: 0 1rem 1rem 0; /* space between image and text */
+  max-width: 200px;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.image-left { float: left; margin-right: 1rem; }
+.image-right { float: right; margin-left: 1rem; }
+
+.philosopher-info p {
+  text-align: justify;
+  line-height: 1.5rem;
+}
+
 </style>

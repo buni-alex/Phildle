@@ -6,6 +6,9 @@ import jwt
 from app.models.daily_phildle import DailyPhildle
 import os
 
+_daily_cache = {"date": None, "data": None}
+
+
 JWT_SECRET = os.getenv('JWT_SECRET')
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
 
@@ -36,7 +39,10 @@ def get_phildle_by_date(date):
         'school': entry.school,
         'country': entry.country,
         'birth_date': entry.birth_date,
-        'death_date': entry.death_date if entry.death_date else None
+        'death_date': entry.death_date if entry.death_date else None,
+        "info": entry.info,
+        "wiki_image_url": entry.wiki_image_url,
+        "wiki_image_meta": entry.wiki_image_meta
     })
 
 @bp.route('phildle/by_id/<int:phildle_id>')
@@ -53,40 +59,49 @@ def get_phildle_by_id(phildle_id):
         'school': entry.school,
         'country': entry.country,
         'birth_date': entry.birth_date,
-        'death_date': entry.death_date if entry.death_date else None
+        'death_date': entry.death_date if entry.death_date else None,
+        "info": entry.info,
+        "wiki_image_url": entry.wiki_image_url,
+        "wiki_image_meta": entry.wiki_image_meta
     })
 
 @bp.route('/today')
 def get_today_phildle():
     today = date.today()
-    entry = DailyPhildle.query.filter_by(date=today).first()
-
-    if not entry:
-        return jsonify({'error': 'No phildle found for today.'}), 404
-
-
+    
+    # Return cached response if it exists
+    if _daily_cache["date"] == today and _daily_cache["data"] is not None:
+        entry_data = _daily_cache["data"]
+    else:
+        entry = DailyPhildle.query.filter_by(date=today).first()
+        if not entry:
+            return jsonify({'error': 'No phildle found for today.'}), 404
+        entry_data = {
+            'date': entry.date,
+            'phildle_id': entry.phildle_id,
+            'quote_text': entry.quote_text,
+            'philosopher_name': entry.philosopher_name,
+            'school': entry.school,
+            'country': entry.country,
+            'birth_date': entry.birth_date,
+            'death_date': entry.death_date if entry.death_date else None,
+            'info': entry.info,
+            'wiki_image_url': entry.wiki_image_url,
+            'wiki_image_meta': entry.wiki_image_meta
+        }
+        _daily_cache["data"] = entry_data
+        _daily_cache["date"] = today
+    
     daily_replay = None
-    user = get_user_from_jwt()    
+    user = get_user_from_jwt()
     if user:
         play = UserPhildleHistory.query.filter_by(
             user_id=user.id,
-            phildle_id=entry.phildle_id
+            phildle_id=entry_data['phildle_id']
         ).first()
         if play and play.played_on.date() == today:
-            daily_replay = {
-                'daily_success': play.success,
-                'attempts': play.attempts
-            }
-
-
-    return jsonify({
-        'date': entry.date,
-        'phildle_id': entry.phildle_id,
-        'quote_text': entry.quote_text,
-        'philosopher_name': entry.philosopher_name,
-        'school': entry.school,
-        'country': entry.country,
-        'birth_date': entry.birth_date,
-        'death_date': entry.death_date if entry.death_date else None,
-        'daily_replay': daily_replay
-    })
+            daily_replay = {'daily_success': play.success, 'attempts': play.attempts}
+    
+    response_data = dict(entry_data)
+    response_data['daily_replay'] = daily_replay
+    return jsonify(response_data)

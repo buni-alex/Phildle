@@ -26,9 +26,10 @@
           </strong>
         </div>
         <div class="stat-row">
-          <span>Losses:</span>
+          <span>Philosofails:</span>
           <strong>
-            {{ props.stats.losses }} 🫣
+            {{ props.stats.daily_losses }}
+            <span> {{getFailsEmoji(props.stats.max_streak)}} </span>
           </strong>
         </div>
       </div>
@@ -57,6 +58,14 @@ const getStreakEmoji = (streak: number) => {
     if (streak >= 10 && streak < 20) return "🔥";
     if (streak >= 20 && streak < 80) return "🧙‍♀️";
     if (streak >= 80) return "🧙‍♂️";
+}
+
+const getFailsEmoji = (fails: number) => {
+    if (fails === 0) return "⬜️";
+    if (fails >= 1 && fails < 15) return "🫠";
+    if (fails >= 15 && fails < 40) return "😒";
+    if (fails >= 40 && fails < 80) return "🫣";
+    if (fails >= 80) return "🧙‍♂️";
 }
 
 </script>

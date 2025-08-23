@@ -131,6 +131,7 @@ def record_play():
             user.last_daily_success = today
         else:
             user.current_streak = 0
+            user.daily_losses += 1  
 
         user.last_played = today
 
@@ -153,21 +154,19 @@ def getUserStats():
 
     # Stats counters
     attempt_counts = {i: 0 for i in range(1, 7)}
-    losses = 0
 
     for h in history:
         if h.success:
             if h.attempts and 1 <= h.attempts <= 5:
                 attempt_counts[h.attempts] += 1
-        else:
-            attempt_counts[6] += 1
-            losses += 1
+
+    attempt_counts[6] = user.daily_losses
 
     return jsonify({
         "current_streak": user.current_streak,
         "max_streak": user.max_streak,
         "attempt_distribution": attempt_counts,
-        "losses": losses,
+        "daily_losses": user.daily_losses,
         "total_played": len(history)
     })
 

@@ -1,18 +1,24 @@
-from scrape_philosophers import get_philosopher_info, get_philosophers_from_url
+from scrape_philosophers import get_raw_wikitext, get_philosopher_data, extract_intro_paragraphs, extract_infobox_image_with_attribution
 from scrape_quotes import get_philosopher_quotes
-import re
-from sqlalchemy import create_engine, Column, Integer, String, Text, ForeignKey
-from sqlalchemy.orm import sessionmaker, relationship, declarative_base, Session
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.automap import automap_base
+import os
+from dotenv import load_dotenv
+import time
 
-DATABASE_URL = "postgresql://postgres:Alex-x1410@localhost:5432/phildle"
+dotenv_path = os.path.join(os.path.dirname(__file__), "..", ".env")
+load_dotenv(dotenv_path)
+
+DATABASE_URL = os.getenv('DATABASE_URL')
 engine = create_engine(DATABASE_URL)
 
 Base = automap_base()
-Base.prepare(engine, reflect=True)
+Base.prepare(autoload_with=engine)
 
 Philosopher = Base.classes.philosopher
 Quote = Base.classes.quote
+print(hasattr(Philosopher, 'info'))  # should be True
 
 Session = sessionmaker(bind=engine)
 
@@ -50,7 +56,7 @@ def save_philosopher_with_quotes(session, name, info, quotes):
 def run_pipeline(philosophers):
     session = Session()
     for name in philosophers:
-        info = get_philosopher_info(name)
+        info = get_philosopher_data(name)
         if not info:
             continue
 
@@ -61,6 +67,112 @@ def run_pipeline(philosophers):
         print(f"Saving {name} ({len(quotes)} quotes)")
         save_philosopher_with_quotes(session, name, info, quotes)
     session.close()
+
+def populate_philosophers_info(max_paragraphs=3):
+    session = Session()
+    philosophers = session.query(Philosopher).all()
+    session.close()
+
+    for phil in philosophers:
+        populate_philosopher_info_for_name(phil.name, max_paragraphs=max_paragraphs)
+
+def populate_philosopher_info_for_name(name, max_paragraphs=3):
+    session = Session()
+    failures_file = "failures_info.txt"
+
+    try:
+        phil = session.query(Philosopher).filter_by(name=name).first()
+        if not phil:
+            print(f"No philosopher found with name '{name}'")
+            return
+
+        print(f"Processing {phil.name}...")
+        try:
+            wikitext = get_raw_wikitext(phil.name)
+            time.sleep(1)
+            if not wikitext:
+                print(f"  No wikitext found for {phil.name}, skipping.")
+                with open(failures_file, "a", encoding="utf-8") as f:
+                    f.write(f"{phil.name}\n")
+                return
+
+            paragraphs = extract_intro_paragraphs(wikitext, max_paragraphs)
+            if not paragraphs:
+                print(f"  No intro paragraphs extracted for {phil.name}, skipping.")
+                with open(failures_file, "a", encoding="utf-8") as f:
+                    f.write(f"{phil.name}\n")
+                return
+
+            html = ''.join(paragraphs)
+            print(html)
+
+            # Update the philosopher's info column
+            session.query(Philosopher).filter_by(id=phil.id).update({"info": html})
+            session.commit()
+            print(f"{phil.name} updated successfully!")
+
+        except Exception as e:
+            print(f"  Failed to process {phil.name}: {e}")
+            with open(failures_file, "a", encoding="utf-8") as f:
+                f.write(f"{phil.name}\n")
+
+    finally:
+        session.close()
+
+def populate_philosophers_images():
+    session = Session()
+    philosophers = session.query(Philosopher).all()
+    session.close()
+
+    for phil in philosophers:
+        populate_philosopher_image_for_name(phil.name)
+
+
+def populate_philosopher_image_for_name(name):
+    session = Session()
+    failures_file = "failures_images.txt"
+
+    try:
+        phil = session.query(Philosopher).filter_by(name=name).first()
+        if not phil:
+            print(f"No philosopher found with name '{name}'")
+            return
+
+        print(f"Processing image for {phil.name}...")
+        try:
+            wikitext = get_raw_wikitext(phil.name)
+            time.sleep(2)
+            if not wikitext:
+                print(f"  No wikitext found for {phil.name}, skipping.")
+                with open(failures_file, "a", encoding="utf-8") as f:
+                    f.write(f"{phil.name}\n")
+                return
+
+            image_info = extract_infobox_image_with_attribution(wikitext)
+            if not image_info:
+                print(f"  No image found for {phil.name}, skipping.")
+                with open(failures_file, "a", encoding="utf-8") as f:
+                    f.write(f"{phil.name}\n")
+                return
+
+            file_url = image_info["file_url"]
+            attribution = image_info["attribution"]
+
+            # Update DB
+            session.query(Philosopher).filter_by(id=phil.id).update({
+                "wiki_image_url": file_url,
+                "wiki_image_meta": attribution  # JSONB column can take dict directly
+            })
+            session.commit()
+            print(f"{phil.name} updated with image {file_url}")
+
+        except Exception as e:
+            print(f"  Failed to process {phil.name}: {e}")
+            with open(failures_file, "a", encoding="utf-8") as f:
+                f.write(f"{phil.name}\n")
+
+    finally:
+        session.close()
 
 if __name__ == "__main__":
     #century_urls = [
@@ -79,4 +191,4 @@ if __name__ == "__main__":
     #    all_philosophers.update(get_philosophers_from_url(url))
     #run_pipeline(all_philosophers)
 
-    run_pipeline({'Zhuang Zhou'})
+    populate_philosophers_info()
