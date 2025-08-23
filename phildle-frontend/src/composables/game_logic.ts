@@ -21,7 +21,10 @@ export function usePhildleGame(dailyPhildle: DailyPhildle, startingLives = 5) {
     country: dailyPhildle.country,
     school: dailyPhildle.school,
     birth_date: dailyPhildle.birth_date,
-    death_date: dailyPhildle.death_date
+    death_date: dailyPhildle.death_date,
+    info: dailyPhildle.info,
+    wiki_image_url: dailyPhildle.wiki_image_url,
+    wiki_image_meta: dailyPhildle.wiki_image_meta
   }
 
   function reset() {
