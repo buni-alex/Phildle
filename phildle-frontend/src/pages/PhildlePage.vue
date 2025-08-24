@@ -14,9 +14,12 @@
     </transition>
 
     <!-- Main content -->
+    <!-- the key is absolutely necessary to make Vue not recycle the component -->
+    <!-- note that it must be unique. The date should be unique -->
     <transition name="fade">
       <PhildleMain
         v-if="splashGone && dailyPhildle"
+        :key= "dailyPhildle.date" 
         :dailyPhildle="dailyPhildle"
         :philosophers="philosophers"
       />

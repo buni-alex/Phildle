@@ -1,11 +1,14 @@
 <template>
   <div class="phildle-main">
   <div>
+
+    <!-- Quote  -->
     <QuoteDisplay
       :quote="props.dailyPhildle.quote_text"
       :philosopher="props.dailyPhildle.philosopher_name"
     />
 
+    <!-- Suggestion Field and Attempts left  -->
     <div class = "sticky-wrapper">
       <div class="suggestion-row">
         <SuggestionField
@@ -30,6 +33,7 @@
       </div>
     </div>
 
+    <!-- Hints  -->
     <div class="hints-container">
       <div v-for="(guess, index) in guessHistory" :key="index" class="hint-row">
         <HintsDisplay :guessedPhilosopher="guess.guessedPhilosopher" :hints="guess.hints" />
@@ -68,7 +72,7 @@ import type { DailyPhildle } from '../../types/daily_phildle'
 import type { Philosopher } from '../../types/philosopher.ts'
 import HintsDisplay from './HintsDisplay.vue'
 import type { Hints } from '../../types/hints'
-import {ref, watch, nextTick, computed} from 'vue'
+import {ref, watch, nextTick, computed, onMounted} from 'vue'
 
 const props = defineProps<{
   dailyPhildle: DailyPhildle,
@@ -79,7 +83,6 @@ const showModal = ref(false);
 const gameLogic = usePhildleGame(props.dailyPhildle)
 const guessHistory = ref<{ guessedPhilosopher: Philosopher, hints: Hints }[]>([])
 const maxLives = 5
-const inputDisabled = ref(false)
 
 // Determine if the current Phildle is today's daily.
 // This is only needed to pass forward to the EndGameModal,
@@ -90,6 +93,11 @@ const isDailyPhildle = computed(() => {
   return today === phildleDate;
 });
 
+//disable the input of SuggestionField; used as prop
+const inputDisabled = computed(() => {
+  if (props.dailyPhildle.daily_replay) return true
+  return gameLogic.guessedCorrectly.value || gameLogic.gameOver.value
+})
 
 function handleAbruptEndGame(success: boolean, attempts?: number) {
   if (success) {
@@ -97,15 +105,16 @@ function handleAbruptEndGame(success: boolean, attempts?: number) {
     gameLogic.guessedCorrectly.value = true
 
     const correctHints = gameLogic.getCorrectHints()
-
     guessHistory.value.push({
       guessedPhilosopher: correctHints.correctPhilosopher,
       hints: correctHints.correctHints
     })
-  } else {
+  } 
+  else 
+  {
     gameLogic.lives.value = 0
     const correctHints = gameLogic.getCorrectHints()
-
+    gameLogic.gameOver.value = true
     guessHistory.value.push({
       guessedPhilosopher: correctHints.correctPhilosopher,
       hints: {
@@ -119,34 +128,20 @@ function handleAbruptEndGame(success: boolean, attempts?: number) {
   }
 }
 
-// we need to watch for the props.dailyPhildle change because otherwise
-// the dailyReplay is only checked when the component is created.
+//check if the user tries to replay the daily.
+onMounted(() => {
+  if (props.dailyPhildle.daily_replay) {
+    gameLogic.reset(props.dailyPhildle)
 
-// if for example you go from /phildle/16 → /today
-// the dailyReplay thing won't actually be rechecked
-watch(
-  () => props.dailyPhildle,
-   (newVal) => {
-    // clear state immediately on phildle switch
-    guessHistory.value = []
-    inputDisabled.value = false
-    showModal.value = false
-
-    if (!newVal || !newVal.daily_replay) return
-
-    gameLogic.reset(newVal)
-
-    if (newVal.daily_replay.daily_success) {
-      handleAbruptEndGame(true, newVal.daily_replay.attempts)
-      showModal.value = true
+    if (props.dailyPhildle.daily_replay.daily_success) {
+      handleAbruptEndGame(true, props.dailyPhildle.daily_replay.attempts)
     } else {
       handleAbruptEndGame(false)
-      showModal.value = true
     }
-    inputDisabled.value = true;
-  },
-  { immediate: true } // also run on first mount
-)
+    //end the game immediately - don't wait for the animation to end.
+    showModal.value = true
+  }
+})
 
 async function onGuessSelected(philosopherName: string) {
   try {
@@ -159,9 +154,8 @@ async function onGuessSelected(philosopherName: string) {
 watch(
   () => (gameLogic.guessedCorrectly.value || gameLogic.gameOver.value),
   (gameEnded) => {
-    if (gameEnded) {
+    if (gameEnded && !showModal.value) {
       setTimeout(() => {
-        inputDisabled.value = true;
         showModal.value = true;
       }, 2100); // 2s animation of hints + 1s wait
     }
@@ -185,7 +179,6 @@ watch(() => gameLogic.hints.value, async (newHints) => {
 
 function onGiveUp() {
   gameLogic.giveUp()
-  inputDisabled.value = true
   handleAbruptEndGame(false)
 
   // a bit unintuitive, but we change this boolean to trigger the
