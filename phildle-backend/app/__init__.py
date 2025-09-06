@@ -16,25 +16,25 @@ def create_app():
     app.register_blueprint(philosophers.bp) 
     app.register_blueprint(history.bp)
 
-    ENV = os.getenv("APP_ENV", "dev")
-
-    if ENV == "prod":
-        @app.route("/", defaults={"path": ""})
-        @app.route("/<path:path>")
-        def catch_all(path):
-            if path.startswith("api"):
-                return {"error": "API route not found"}, 404
-
-            file_path = os.path.join(app.static_folder, path)
-            if path != "" and os.path.exists(file_path):
-                return send_from_directory(app.static_folder, path)
-
-            return send_file(os.path.join(app.static_folder, "index.html"))
-    elif ENV == "dev":
-        # in dev we don't mount catch-all
-        # Vue dev server handles the frontend
-        @app.route("/")
-        def index():
-            return {"message": "Backend is running in API-only mode"}
-
+    #ENV = os.getenv("APP_ENV", "dev")
+#
+    #if ENV == "prod":
+    #    @app.route("/", defaults={"path": ""})
+    #    @app.route("/<path:path>")
+    #    def catch_all(path):
+    #        if path.startswith("api"):
+    #            return {"error": "API route not found"}, 404
+#
+    #        file_path = os.path.join(app.static_folder, path)
+    #        if path != "" and os.path.exists(file_path):
+    #            return send_from_directory(app.static_folder, path)
+#
+    #        return send_file(os.path.join(app.static_folder, "index.html"))
+    #elif ENV == "dev":
+    #    # in dev we don't mount catch-all
+    #    # Vue dev server handles the frontend
+    #    @app.route("/")
+    #    def index():
+    #        return {"message": "Backend is running in API-only mode"}
+        
     return app
