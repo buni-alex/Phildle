@@ -128,8 +128,8 @@ function handleAbruptEndGame(success: boolean, attempts?: number) {
   }
 }
 
-//check if the user tries to replay the daily.
 onMounted(() => {
+  //Check if the user tries to replay the daily
   if (props.dailyPhildle.daily_replay) {
     gameLogic.reset(props.dailyPhildle)
 
@@ -140,8 +140,43 @@ onMounted(() => {
     }
     //end the game immediately - don't wait for the animation to end.
     showModal.value = true
+    return
+  }
+
+  // Otherwise, see if we have local saved progress
+  // This is necessary to prevent the user from getting infinite
+  // attempts through page reloading.
+  const saved = localStorage.getItem(`phildle-progress-${props.dailyPhildle.date}`)
+  if (saved) {
+    try {
+      const state = JSON.parse(saved)
+      gameLogic.lives.value = state.lives
+      gameLogic.guessedCorrectly.value = state.guessedCorrectly
+      gameLogic.gameOver.value = state.gameOver
+      guessHistory.value = state.guessHistory || []
+    } catch (err) {
+      console.error('Failed to parse saved state', err)
+    }
   }
 })
+
+// watch for game state changes and save them in localStorage
+watch(
+  [gameLogic.lives, gameLogic.guessedCorrectly, gameLogic.gameOver, guessHistory],
+  () => {
+    const state = {
+      lives: gameLogic.lives.value,
+      guessedCorrectly: gameLogic.guessedCorrectly.value,
+      gameOver: gameLogic.gameOver.value,
+      guessHistory: guessHistory.value
+    }
+    localStorage.setItem(
+      `phildle-progress-${props.dailyPhildle.date}`,
+      JSON.stringify(state)
+    )
+  },
+  { deep: true }
+)
 
 async function onGuessSelected(philosopherName: string) {
   try {
@@ -154,6 +189,8 @@ async function onGuessSelected(philosopherName: string) {
 watch(
   () => (gameLogic.guessedCorrectly.value || gameLogic.gameOver.value),
   (gameEnded) => {
+    localStorage.removeItem(`phildle-progress-${props.dailyPhildle.date}`)
+
     if (gameEnded && !showModal.value) {
       setTimeout(() => {
         showModal.value = true;
@@ -181,7 +218,7 @@ function onGiveUp() {
   gameLogic.giveUp()
   handleAbruptEndGame(false)
 
-  // a bit unintuitive, but we change this boolean to trigger the
+  // a bit unintuitive, but we also change this boolean to trigger the
   // "slow" pop of EndGameModal - the one that waits for the animation
   // to finish
 

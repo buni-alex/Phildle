@@ -92,14 +92,25 @@ watch(() => route.fullPath, loadPhildle) // react when route changes, othewise v
   padding: 2rem;
   margin-top:2rem;
 }
+
+.loading-overlay {
+  position: fixed;
+  inset: 0; /* shorthand for top:0; right:0; bottom:0; left:0 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* keep it above everything else */
+}
+
+.loading-title {
+  font-size: 72px;
+  text-align: center;
+}
+
 @media (max-width: 500px) {
 .phildle-page {
   padding: 1rem;
 }
-}
-
-.loading-title {
-  font-size:72px;
 }
 
 /* Splash transition */

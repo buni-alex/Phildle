@@ -80,7 +80,7 @@ export const COUNTRY_EQUIVALENCE: Record<string, Set<string>> = {
   ]),
   India: new Set([
     "India", "British India", "Mughal Empire", "Maurya Empire",
-    "Chola Empire"
+    "Chola Empire", "British Raj"
   ]),
   Japan: new Set([
     "Japan", "Empire of Japan"
@@ -97,7 +97,7 @@ export const COUNTRY_EQUIVALENCE: Record<string, Set<string>> = {
     "Turkey", "Ottoman Empire", "Anatolia"
   ]),
   Iran: new Set([
-    "Iran", "Persia", "Achaemenid Empire", "Sassanid Empire"
+    "Iran", "Persia", "Achaemenid Empire", "Sassanid Empire", "Parth Empire"
   ]),
   Iraq: new Set([
     "Iraq", "Mesopotamia", "Babylon", "Assyria"
