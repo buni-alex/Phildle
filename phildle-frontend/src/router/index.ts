@@ -1,7 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import PhildlePage from '../pages/PhildlePage.vue'
-import ArchivePage from '../pages/ArchivePage.vue'
-import StatsPage from '../pages/StatsPage.vue'
 
 const routes = [
   {
@@ -10,24 +7,24 @@ const routes = [
   },
   {
     path: '/today',
-    component: PhildlePage,
-    name: 'DailyPhildle'
+    name: 'DailyPhildle',
+    component: () => import('../pages/PhildlePage.vue')
   },
   {
     path: '/phildle/:id',
-    component: PhildlePage,
     name: 'PastPhildle',
+    component: () => import('../pages/PhildlePage.vue'),
     props: true
   },
   {
     path: '/archive',
     name: 'Archive',
-    component: ArchivePage,
+    component: () => import('../pages/ArchivePage.vue')
   },
   {
     path: '/stats',
     name: 'Stats',
-    component: StatsPage
+    component: () => import('../pages/StatsPage.vue')
   }
 ]
 

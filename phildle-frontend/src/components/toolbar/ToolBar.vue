@@ -13,9 +13,9 @@
 
   <nav class="side-menu" :class="{ open: menuOpen }">
     <ul>
-      <li @click="goToToday">Today's Phildle</li>
-      <li @click="goToArchive">Archive</li>
-      <li @click="goToStats">Your Stats</li>
+      <li @mouseenter="preloadToday" @click="goToToday">Today's Phildle</li>
+      <li @mouseenter="preloadArchive" @click="goToArchive">Archive</li>
+      <li @mouseenter="preloadStats" @click="goToStats">Your Stats</li>
       <li @click="popAboutModal">About / How to Play</li>
     </ul>
   </nav>
@@ -62,6 +62,16 @@ function goToArchive() {
 function popAboutModal(){
   menuOpen.value = false
   showAboutModal.value = true
+}
+
+function preloadToday() {
+  import('../../pages/PhildlePage.vue')
+}
+function preloadArchive() {
+  import('../../pages/ArchivePage.vue')
+}
+function preloadStats() {
+  import('../../pages/StatsPage.vue')
 }
 </script>
 
