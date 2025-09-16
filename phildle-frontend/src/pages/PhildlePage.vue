@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { fetchDailyPhildle, fetchPhildleById } from '../services/data_service'
 import { getUser } from '../caches/user_cache'
@@ -49,41 +49,50 @@ const showAboutModal = ref(false)
 
 async function loadPhildle() {
   try {
-    // Show splash on first visit
-    if (!sessionStorage.getItem('phildleSplashShown')) {
-      showSplash.value = true
-      sessionStorage.setItem('phildleSplashShown', 'true')
-    }
+    // fetch user, philosophers, dailyPhildle in parallel
+    const id = route.params.id ? Number(route.params.id) : null
 
-    const userInit = await getUser()
-    if (userInit.new_user) {
+    const userPromise = getUser() as Promise<{ user_uuid: string; new_user: boolean }>
+    const philosophersPromise = getPhilosophers() as Promise<string[]>
+    const dailyPromise = id 
+      ? fetchPhildleById(id) as Promise<DailyPhildle>
+      : fetchDailyPhildle() as Promise<DailyPhildle>
+      
+    const [userInit, philosophersList, daily] = await Promise.all([
+      userPromise,
+      philosophersPromise,
+      dailyPromise
+    ])
+
+    if (userInit.new_user){ 
       showAboutModal.value = true
     }
+    philosophers.value = philosophersList
+    dailyPhildle.value = daily
 
-    philosophers.value = await getPhilosophers()
-
-    const id = route.params.id ? Number(route.params.id) : null
-    dailyPhildle.value = id ? await fetchPhildleById(id) : await fetchDailyPhildle()
-
-    // Ensure Vue renders splash before hiding
-    await nextTick()
-
-    // Hide splash after data is loaded
-    if (showSplash.value) {
-      showSplash.value = false
-      // splashGone will be set automatically via @after-leave
-    } else {
-      splashGone.value = true
-    }
-
-  } catch (e: any) {
+  } catch (e) {
     console.error(e)
-    splashGone.value = true
+  } finally {
+    // hide splash after minimum 200ms or after data ready
+    setTimeout(() => {
+      showSplash.value = false
+      splashGone.value = true
+    }, 200)
   }
 }
 
+onMounted(() => {
+  // show splash immediately on first visit
+  if (!sessionStorage.getItem('phildleSplashShown')) {
+    showSplash.value = true
+    sessionStorage.setItem('phildleSplashShown', 'true')
+  } else {
+    splashGone.value = true
+  }
 
-onMounted(loadPhildle)
+  loadPhildle() // fetch data asynchronously
+})
+
 watch(() => route.fullPath, loadPhildle) // react when route changes, othewise vue caches
 </script>
 

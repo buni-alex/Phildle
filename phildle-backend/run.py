@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-# Explicitly specify path to .env file
+# Explicitly specify path to .env file or it won't work
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
