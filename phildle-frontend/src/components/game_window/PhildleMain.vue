@@ -55,7 +55,7 @@
       :dailyPhildle="props.dailyPhildle"
       :attempts="props.dailyPhildle.daily_replay
               ? props.dailyPhildle.daily_replay.attempts
-              : maxLives - gameLogic.lives.value + 1"
+              : maxLives - gameLogic.lives.value"
       :isDaily="isDailyPhildle"
       @close="closeModal"
     />
