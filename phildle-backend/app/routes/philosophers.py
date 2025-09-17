@@ -1,11 +1,12 @@
 from flask import Blueprint, jsonify, abort
 from app.models.philosopher import Philosopher
+from app import db
 
 bp = Blueprint('philosophers', __name__, url_prefix='/api/philosophers')
 
 @bp.route('/all_names')
 def get_philosophers_names():
-    philosophers = Philosopher.query.order_by(Philosopher.name).all()
+    philosophers = db.session.query(Philosopher.name).order_by(Philosopher.name).all()
     return jsonify([p.name for p in philosophers])
 
 @bp.route('/by_name/<string:name>')

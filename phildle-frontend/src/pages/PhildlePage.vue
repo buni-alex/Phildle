@@ -34,7 +34,7 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { fetchDailyPhildle, fetchPhildleById } from '../services/data_service'
 import { getUser } from '../caches/user_cache'
-import { getPhilosophers } from '../caches/philosophers_names_cache'
+import { getPhilosophersNames } from '../caches/philosophers_names_cache'
 import type { DailyPhildle } from '../types/daily_phildle'
 import ToolBar from '../components/toolbar/ToolBar.vue'
 import PhildleMain from '../components/game_window/PhildleMain.vue'
@@ -53,10 +53,14 @@ async function loadPhildle() {
     const id = route.params.id ? Number(route.params.id) : null
 
     const userPromise = getUser() as Promise<{ user_uuid: string; new_user: boolean }>
-    const philosophersPromise = getPhilosophers() as Promise<string[]>
+    const philosophersPromise = getPhilosophersNames() as Promise<string[]>
     const dailyPromise = id 
       ? fetchPhildleById(id) as Promise<DailyPhildle>
       : fetchDailyPhildle() as Promise<DailyPhildle>
+    
+    //also preload the other pages in the background
+    import('../pages/ArchivePage.vue')
+    import('../pages/StatsPage.vue')
       
     const [userInit, philosophersList, daily] = await Promise.all([
       userPromise,
@@ -82,15 +86,9 @@ async function loadPhildle() {
 }
 
 onMounted(() => {
-  // show splash immediately on first visit
-  if (!sessionStorage.getItem('phildleSplashShown')) {
-    showSplash.value = true
-    sessionStorage.setItem('phildleSplashShown', 'true')
-  } else {
-    splashGone.value = true
-  }
+  showSplash.value = true
 
-  loadPhildle() // fetch data asynchronously
+  loadPhildle()
 })
 
 watch(() => route.fullPath, loadPhildle) // react when route changes, othewise vue caches

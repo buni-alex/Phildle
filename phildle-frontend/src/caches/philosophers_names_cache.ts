@@ -1,11 +1,11 @@
 import { fetchPhilosophersNames } from '../services/data_service'
 
-export async function getPhilosophers(): Promise<string[]> {
-  const cached = sessionStorage.getItem("philosophers")
+export async function getPhilosophersNames(): Promise<string[]> {
+  const cached = sessionStorage.getItem("philosophersNames")
 
   if (!cached) {
     const names = await fetchPhilosophersNames()
-    sessionStorage.setItem("philosophers", JSON.stringify(names))
+    sessionStorage.setItem("philosophersNames", JSON.stringify(names))
     return names
   } else {
     return JSON.parse(cached)
