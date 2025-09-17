@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, abort
 from app.models.philosopher import Philosopher
-from app import db
+from app.db import db
 
 bp = Blueprint('philosophers', __name__, url_prefix='/api/philosophers')
 
