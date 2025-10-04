@@ -70,7 +70,7 @@ def init_user():
     return jsonify({
         "user_uuid": str(user.id),
         "new_user": False,
-        "created_at": user.created_at.isoformat()  # full datetime
+        "created_at": user.created_at.isoformat()
     })
 
 @bp.route("/record_play", methods=["POST"])
@@ -149,7 +149,7 @@ def getUserStats():
     if not user:
         return jsonify({"error": "No valid user"}), 401
     
-     # Base query for history
+    # Base query for history
     history = UserPhildleHistory.query.filter_by(user_id=user.id).all()
 
     # Stats counters

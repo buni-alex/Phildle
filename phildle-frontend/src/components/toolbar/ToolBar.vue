@@ -12,13 +12,44 @@
   </header>
 
   <nav class="side-menu" :class="{ open: menuOpen }">
-    <ul>
-      <li @mouseenter="preloadToday" @click="goToToday">Today's Phildle</li>
-      <li @mouseenter="preloadArchive" @click="goToArchive">Archive</li>
-      <li @mouseenter="preloadStats" @click="goToStats">Your Stats</li>
-      <li @click="popAboutModal">About / How to Play</li>
-    </ul>
-  </nav>
+  <ul>
+    <li>
+      <button
+        @mouseenter="preloadToday"
+        @click="goToToday"
+        :class="{ active: route.name === 'DailyPhildle' }"
+      >
+        Today's Phildle
+      </button>
+    </li>
+    <li>
+      <button
+        @mouseenter="preloadArchive"
+        @click="goToArchive"
+        :class="{ active: route.name === 'Archive' }"
+      >
+        Archive
+      </button>
+    </li>
+    <li>
+      <button
+        @mouseenter="preloadStats"
+        @click="goToStats"
+        :class="{ active: route.name === 'Stats' }"
+      >
+        Your Stats
+      </button>
+    </li>
+    <li>
+      <button
+        @click="popAboutModal"
+        :class="{ active: showAboutModal }"
+      >
+        About / How to Play
+      </button>
+    </li>
+  </ul>
+</nav>
 
   <teleport to="body">
     <AboutModal :show="showAboutModal" @close="showAboutModal = false" />
@@ -28,11 +59,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import AboutModal from '../modals/AboutModal.vue';
 
 const router = useRouter()
-const showAboutModal = ref(false)  // <-- add this
+const route = useRoute() 
+const showAboutModal = ref(false)
 
 defineProps<{
   title: string
@@ -109,7 +141,7 @@ function preloadStats() {
 
 .menu-button:focus,
 .menu-button:active {
-  outline: 2px solid #323232; /* only when active or focused */
+  outline: 2px solid #323232;
 }
 
 .menu-button:hover{
@@ -141,10 +173,31 @@ function preloadStats() {
   padding: 0;
 }
 .side-menu li {
+  padding: 0;
+  padding-bottom:0.2rem;
+}
+.side-menu li button {
+  display: block;
+  width: 100%;
+  text-align: center;
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1rem;
   padding: 1rem;
   cursor: pointer;
+  font-family: inherit;
 }
-.side-menu li:hover {
+
+.side-menu li button:hover,
+.side-menu li button:focus,
+.side-menu li button.active {
   background: #444;
+  outline: none;
+}
+
+.side-menu li button:focus-visible {
+  outline: 2px solid #000000;
+  outline-offset: -2px;
 }
 </style>

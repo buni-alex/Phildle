@@ -182,15 +182,15 @@ function dateHintEmoji(hint: string): string {
 }
 
 .flip-back.correct {
-  background-color: #399b3c !important; /* green */
-  border-color: #388E3C!important; /* darker green border */
+  background-color: #399b3c !important; 
+  border-color: #388E3C!important;
   color: white;
   font-weight: bold;
 }
 
 .flip-back.partial {
-  background-color: #b59f3b!important; /* mustard yellow */
-  border-color: #A88621!important; /* darker mustard */
+  background-color: #b59f3b!important; 
+  border-color: #A88621!important;
   color: #eee;
   font-weight: bold;
 }
@@ -225,7 +225,7 @@ function dateHintEmoji(hint: string): string {
 @media (max-width: 600px) {
   .hints-display {
     display: flex;
-    gap: 9px; /* 10px * 0.9 */
+    gap: 9px; 
     align-items: stretch;
   }
   .hint-square {

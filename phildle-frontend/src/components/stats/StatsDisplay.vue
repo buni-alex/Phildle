@@ -90,7 +90,7 @@ const getFailsEmoji = (fails: number) => {
 @media (max-width: 500px) {
   .stats-display {
     width: 80vw;       /* 20% wider than viewport */
-    padding: 1rem;      /* optional: slightly reduce padding */
+    padding: 1rem;      /* slightly reduce padding */
     margin-top: 0;
   }
 
